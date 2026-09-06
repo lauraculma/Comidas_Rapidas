@@ -7,11 +7,6 @@ Aplicación de escritorio desarrollada en **Java** bajo el paradigma de **Progra
 ## 📋 Tabla de Contenidos
 - [Descripción General](#-descripción-general)
 - [Características Principales y Roles](#-características-principales-y-roles)
-- [Arquitectura y Estructura del Proyecto](#-arquitectura-y-estructura-del-proyecto)
-- [Requisitos del Sistema](#-requisitos-del-sistema)
-- [Configuración y Puesta en Marcha](#-configuración-y-puesta-en-marcha)
-- [Control de Calidad y Métricas](#-control-de-calidad-y-métricas)
-- [Integrantes del Grupo](#-integrantes-del-grupo)
 
 ---
 
