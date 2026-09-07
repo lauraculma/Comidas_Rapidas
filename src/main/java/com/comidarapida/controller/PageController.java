@@ -53,8 +53,18 @@ public class PageController {
     }
 
     @GetMapping({"/","/dashboard","/dashboard-admin"})
-    public String dashboardAdmin(Model model, HttpSession session) {
+    public String dashboard(Model model, HttpSession session) {
         ensureSessionAttributes(model, session);
+        // Prefer session attribute (set by ensureSessionAttributes), fallback to model
+        Object roleObj = session.getAttribute("sessionRole");
+        if (roleObj == null) {
+            roleObj = model.asMap().get("sessionRole");
+        }
+        String role = roleObj != null ? roleObj.toString() : null;
+        if ("VENDEDOR".equals(role)) return "dashboard-vendedor";
+        if ("INVENTARIO".equals(role)) return "dashboard-inventario";
+        if ("ADMIN".equals(role)) return "dashboard-admin";
+        // default
         return "dashboard-admin";
     }
 
