@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panel inventario · Comida Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css"></head>
+<body><div class="shell">
+<div th:replace="~{fragments/sidebar :: sidebar('dashboard','INVENTARIO')}"></div>
+<main class="main"><div th:replace="~{fragments/topbar :: topbar('Inventario','Panel inventario')}"></div>
+<section class="content">
+<div class="page-head"><div><h2>Inventario al día</h2><p>Revisa existencias y registra entradas o salidas sin perder el historial.</p></div><a class="btn btn-primary" th:href="@{/inventario/movimientos/nuevo}">Registrar movimiento</a></div>
+<div class="grid stats"><article class="card stat"><div class="stat-top"><span class="label">Materias primas</span><span class="stat-icon blue">M</span></div><strong>17</strong><small>Ingredientes registrados</small></article><article class="card stat"><div class="stat-top"><span class="label">Stock bajo</span><span class="stat-icon amber">!</span></div><strong>4</strong><small>Requieren abastecimiento</small></article><article class="card stat"><div class="stat-top"><span class="label">Entradas hoy</span><span class="stat-icon green">↓</span></div><strong>6</strong><small>Movimientos registrados</small></article><article class="card stat"><div class="stat-top"><span class="label">Salidas hoy</span><span class="stat-icon red">↑</span></div><strong>9</strong><small>Consumos y ajustes</small></article></div>
+<div class="grid two-col"><article class="card"><div class="panel-head"><div><h3>Existencias críticas</h3><p>Materias primas que conviene revisar primero.</p></div></div><div class="panel-body table-wrap"><table><thead><tr><th>Materia prima</th><th>Existencia</th><th>Estado</th></tr></thead><tbody><tr><td>Carne de res</td><td>3 kg</td><td><span class="badge amber">Stock bajo</span></td></tr><tr><td>Queso</td><td>18 und</td><td><span class="badge amber">Stock bajo</span></td></tr></tbody></table></div></article><article class="card"><div class="panel-head"><div><h3>Acciones rápidas</h3></div></div><div class="panel-body quick-actions"><a class="quick" th:href="@{/inventario/nueva-materia}">Nueva materia</a><a class="quick" th:href="@{/inventario/movimientos/nuevo(tipo='ENTRADA')}">Registrar entrada</a><a class="quick" th:href="@{/inventario/movimientos/nuevo(tipo='SALIDA')}">Registrar salida</a><a class="quick" th:href="@{/inventario/movimientos}">Ver historial</a></div></article></div>
+</section></main></div>
+<script th:src="@{/js/app.js}" src="/js/app.js"></script></body></html>

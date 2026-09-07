@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panel vendedor · Comida Rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css"></head>
+<body><div class="shell">
+<div th:replace="~{fragments/sidebar :: sidebar('dashboard','VENDEDOR')}"></div>
+<main class="main"><div th:replace="~{fragments/topbar :: topbar('Ventas','Panel vendedor')}"></div>
+<section class="content">
+<div class="page-head"><div><h2>Turno de ventas</h2><p>Clientes, disponibilidad y pedidos en una pantalla enfocada en atender rápido.</p></div><a class="btn btn-primary" th:href="@{/vendedor/venta/nueva}">Nueva venta</a></div>
+<div class="grid stats"><article class="card stat"><div class="stat-top"><span class="label">Ventas hoy</span><span class="stat-icon green">$</span></div><strong>18</strong><small>Pedidos confirmados</small></article><article class="card stat"><div class="stat-top"><span class="label">Clientes atendidos</span><span class="stat-icon blue">C</span></div><strong>15</strong><small>Durante este turno</small></article><article class="card stat"><div class="stat-top"><span class="label">Productos disponibles</span><span class="stat-icon red">P</span></div><strong>21</strong><small>Según materias primas</small></article><article class="card stat"><div class="stat-top"><span class="label">Pedido promedio</span><span class="stat-icon amber">$</span></div><strong>$31.200</strong><small>Promedio del turno</small></article></div>
+<div class="grid two-col"><article class="card"><div class="panel-head"><div><h3>Pedidos recientes</h3><p>Últimas ventas confirmadas.</p></div></div><div class="panel-body table-wrap"><table><thead><tr><th>Pedido</th><th>Cliente</th><th>Total</th><th>Estado</th></tr></thead><tbody><tr><td>#1048</td><td>Laura Gómez</td><td><strong>$42.000</strong></td><td><span class="badge green">Confirmado</span></td></tr><tr><td>#1047</td><td>Mateo Ruiz</td><td><strong>$27.500</strong></td><td><span class="badge green">Confirmado</span></td></tr></tbody></table></div></article><article class="card"><div class="panel-head"><div><h3>Atajos del turno</h3><p>Las tareas más frecuentes.</p></div></div><div class="panel-body quick-actions"><a class="quick" th:href="@{/vendedor/venta/nueva}">Registrar venta</a><a class="quick" th:href="@{/vendedor/clientes}">Buscar cliente</a><a class="quick" th:href="@{/vendedor/clientes/nuevo}">Nuevo cliente</a><a class="quick" th:href="@{/vendedor/productos}">Ver disponibilidad</a></div></article></div>
+</section></main></div>
+<script th:src="@{/js/app.js}" src="/js/app.js"></script></body></html>

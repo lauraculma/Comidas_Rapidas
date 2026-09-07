@@ -1,0 +1,10 @@
+<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><body>
+<aside class="sidebar" th:fragment="sidebar(active, role)">
+<a class="brand" th:href="@{/dashboard}"><span class="brand-mark">CR</span><span class="brand-copy"><strong>Comida Rápida</strong><span>gestión operativa</span></span></a>
+<div><div class="nav-label">Principal</div><nav class="nav"><a th:href="@{/dashboard}" th:classappend="${active=='dashboard'}?'active'">Resumen</a></nav></div>
+<div th:if="${role=='ADMIN'}"><div class="nav-label">Administración</div><nav class="nav"><a th:href="@{/admin/usuarios}" th:classappend="${active=='usuarios'}?'active'">Usuarios</a><a th:href="@{/admin/productos}" th:classappend="${active=='productos'}?'active'">Productos</a></nav></div>
+<div th:if="${role=='VENDEDOR'}"><div class="nav-label">Ventas</div><nav class="nav"><a th:href="@{/vendedor/venta/nueva}" th:classappend="${active=='venta'}?'active'">Nueva venta</a><a th:href="@{/vendedor/clientes}" th:classappend="${active=='clientes'}?'active'">Clientes</a><a th:href="@{/vendedor/productos}" th:classappend="${active=='catalogo'}?'active'">Disponibilidad</a></nav></div>
+<div th:if="${role=='INVENTARIO'}"><div class="nav-label">Inventario</div><nav class="nav"><a th:href="@{/inventario}" th:classappend="${active=='inventario'}?'active'">Materias primas</a><a th:href="@{/inventario/movimientos}" th:classappend="${active=='movimientos'}?'active'">Movimientos</a></nav></div>
+<div><div class="nav-label">Cuenta</div><nav class="nav"><a th:href="@{/perfil}" th:classappend="${active=='perfil'}?'active'">Mi perfil</a></nav></div>
+<div class="sidebar-footer"><div class="user-mini"><div class="avatar" th:text="${usuario!=null?#strings.substring(usuario.nombre,0,1):'U'}">U</div><div><strong th:text="${usuario!=null?usuario.nombre+' '+usuario.apellido:'Usuario'}">Usuario</strong><span th:text="${role}">ADMIN</span></div></div></div>
+</aside></body></html>
