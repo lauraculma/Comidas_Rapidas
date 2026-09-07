@@ -13,10 +13,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class PageController {
 
     private final UsuarioRepository usuarioRepository;
+    private final com.comidarapida.service.ProductoService productoService;
+    private final com.comidarapida.repository.ClienteRepository clienteRepository;
     private final Logger log = LoggerFactory.getLogger(PageController.class);
 
-    public PageController(UsuarioRepository usuarioRepository) {
+    public PageController(UsuarioRepository usuarioRepository, com.comidarapida.service.ProductoService productoService, com.comidarapida.repository.ClienteRepository clienteRepository) {
         this.usuarioRepository = usuarioRepository;
+        this.productoService = productoService;
+        this.clienteRepository = clienteRepository;
     }
 
     private void ensureSessionAttributes(Model model, HttpSession session) {
@@ -85,12 +89,22 @@ public class PageController {
     @GetMapping("/vendedor/productos")
     public String vendedorProductos(Model model, HttpSession session) {
         ensureSessionAttributes(model, session);
+        model.addAttribute("productos", productoService.listarDisponibles());
         return "disponibilidad";
     }
 
     @GetMapping("/vendedor/venta/nueva")
-    public String nuevaVenta(Model model, HttpSession session) {
+    public String nuevaVenta(Model model, HttpSession session, @org.springframework.web.bind.annotation.RequestParam(value = "clienteId", required = false) Long clienteId) {
         ensureSessionAttributes(model, session);
+        var productos = productoService.listarDisponibles().stream()
+                .filter(p -> (p.getCodigo() == null || !p.getCodigo().startsWith("AD-"))
+                        && (p.getNombre() == null || !p.getNombre().toLowerCase().contains("extra")))
+                .collect(java.util.stream.Collectors.toList());
+        model.addAttribute("productos", productos);
+        if (clienteId != null) {
+            var opt = clienteRepository.findById(clienteId);
+            opt.ifPresent(c -> model.addAttribute("clienteSeleccionado", c));
+        }
         return "nueva-venta";
     }
 

@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import com.comidarapida.model.ProductoComidaRapida;
 
 @Controller
 public class InventarioController {
@@ -23,11 +24,15 @@ public class InventarioController {
     private final MovimientoInventarioRepository movimientoRepo;
     private final InventarioService inventarioService;
 
-    public InventarioController(MateriaPrimaRepository materiaRepo, MovimientoInventarioRepository movimientoRepo, InventarioService inventarioService) {
+    private final com.comidarapida.repository.ProductoRepository productoRepo;
+
+    public InventarioController(MateriaPrimaRepository materiaRepo, MovimientoInventarioRepository movimientoRepo, InventarioService inventarioService, com.comidarapida.repository.ProductoRepository productoRepo) {
         this.materiaRepo = materiaRepo;
         this.movimientoRepo = movimientoRepo;
         this.inventarioService = inventarioService;
+        this.productoRepo = productoRepo;
     }
+
 
     // --- ENDPOINTS REST (se mantienen como API) ---
     @ResponseBody
@@ -61,6 +66,40 @@ public class InventarioController {
         encargado.setIdUsuario(encargadoId);
         MovimientoInventario mov = inventarioService.registrarSalida(m, cantidad, encargado);
         return ResponseEntity.ok().build();
+    }
+
+    @ResponseBody
+    @GetMapping("/api/inventario/materias/codigo/{codigo}")
+    public ResponseEntity<MateriaPrimaDto> buscarPorCodigo(@PathVariable int codigo) {
+        var opt = materiaRepo.findByCodigo(codigo);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        MateriaPrima m = opt.get();
+        MateriaPrimaDto dto = new MateriaPrimaDto();
+        dto.id = m.getIdMateriaPrima();
+        dto.codigo = m.getCodigo();
+        dto.nombre = m.getNombre();
+        dto.stockActual = m.getStockActual();
+        dto.unidadMedida = m.getUnidadMedida();
+        return ResponseEntity.ok(dto);
+    }
+
+    @ResponseBody
+    @PostMapping("/api/inventario/adiciones/obtener-o-crear")
+    public ResponseEntity<?> obtenerOCrearAdicion(@RequestParam int codigoMateria, @RequestParam(defaultValue = "1000") double precio) {
+        var opt = materiaRepo.findByCodigo(codigoMateria);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        MateriaPrima m = opt.get();
+        // try to find existing product with code AD-{codigo}
+        var maybe = productoRepo.findAll().stream().filter(p -> ("AD-" + codigoMateria).equals(p.getCodigo())).findFirst();
+        if (maybe.isPresent()) {
+            return ResponseEntity.ok(java.util.Collections.singletonMap("id", maybe.get().getIdProducto()));
+        }
+        ProductoComidaRapida p = new ProductoComidaRapida();
+        p.setCodigo("AD-" + codigoMateria);
+        p.setNombre("Adición - " + m.getNombre());
+        p.setPrecio(precio);
+        ProductoComidaRapida saved = productoRepo.save(p);
+        return ResponseEntity.ok(java.util.Collections.singletonMap("id", saved.getIdProducto()));
     }
 
     // --- ENDPOINTS MVC (Thymeleaf) ---

@@ -14,7 +14,7 @@ public class Pedido {
 
     private Date fecha;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "pedido")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "pedido", orphanRemoval = true)
     private List<DetallePedido> detalles = new ArrayList<>();
 
     private double total;

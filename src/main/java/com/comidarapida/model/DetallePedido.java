@@ -10,12 +10,14 @@ public class DetallePedido {
     private Long idDetalle;
 
     @ManyToOne
+    @JoinColumn(name = "id_producto", nullable = false)
     private ProductoComidaRapida producto;
 
     private int cantidad;
     private double precioUnitario;
 
     @ManyToOne
+    @JoinColumn(name = "id_pedido", nullable = false)
     private Pedido pedido;
 
     // Getters y setters

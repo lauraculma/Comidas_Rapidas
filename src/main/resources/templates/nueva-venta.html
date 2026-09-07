@@ -1,5 +1,241 @@
 <!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nueva venta · Comida Rápida</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"><link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css"></head><body><div class="shell"><div th:replace="~{fragments/sidebar :: sidebar('venta', ${sessionRole})}"></div><main class="main"><div th:replace="~{fragments/topbar :: topbar('Ventas','Nueva venta')}"></div><section class="content">
 <div class="page-head"><div><h2>Nueva venta</h2><p>Consulta el cliente, agrega productos disponibles y confirma el pedido.</p></div></div>
-<div class="order-layout"><section><article class="card form-card" style="margin-bottom:17px"><div class="form-group"><label>Cliente</label><div style="display:flex;gap:9px"><input class="search" style="flex:1" placeholder="Documento del cliente"><button class="btn btn-dark" type="button">Buscar</button><a class="btn btn-light" th:href="@{/vendedor/clientes/nuevo}">Nuevo</a></div></div></article><div class="catalog-grid"><article class="card menu-card"><div class="menu-visual">🍔</div><h4>Hamburguesa clásica</h4><p>12 unidades disponibles.</p><div class="menu-foot"><strong>$18.000</strong><button class="btn btn-dark">Agregar</button></div></article><article class="card menu-card"><div class="menu-visual">🌭</div><h4>Perro especial</h4><p>4 unidades disponibles.</p><div class="menu-foot"><strong>$15.500</strong><button class="btn btn-dark">Agregar</button></div></article></div></section>
-<aside class="card cart"><div class="eyebrow">Pedido actual</div><h3>Resumen de venta</h3><div class="cart-item"><div><strong>Hamburguesa clásica × 2</strong><small>Sin adiciones</small></div><strong>$36.000</strong></div><div class="cart-item"><div><strong>Bebida × 1</strong><small>Unidad</small></div><strong>$5.000</strong></div><button class="btn btn-light" style="width:100%;margin-top:12px">Seleccionar adiciones</button><div class="total-box"><div class="total-row"><span>Subtotal</span><strong>$41.000</strong></div><div class="total-row final"><span>Total</span><strong>$41.000</strong></div></div><button class="btn btn-primary" style="width:100%;margin-top:13px">Confirmar venta</button></aside></div>
-</section></main></div><script th:src="@{/js/app.js}" src="/js/app.js"></script></body></html>
+<div class="order-layout"><section><article class="card form-card" style="margin-bottom:17px"><div class="form-group"><label>Cliente</label><div style="display:flex;gap:9px">
+    <form id="buscar-cliente-form" th:action="@{/vendedor/clientes/buscar}" method="get" style="display:flex;flex:1;gap:9px">
+        <input name="documento" class="search" style="flex:1" placeholder="Documento del cliente" th:value="${clienteSeleccionado!=null?clienteSeleccionado.documento:''}">
+        <button class="btn btn-dark" type="submit">Buscar</button>
+    </form>
+    <a class="btn btn-light" th:href="@{/vendedor/clientes/nuevo}">Nuevo</a></div></div></article>
+    <div class="catalog-grid">
+        <article class="card menu-card" th:each="prod : ${productos}" th:if="${prod.codigo == null or !prod.codigo.matches('AD-(111|112|103|102|107|108)')}">
+            <div class="menu-visual">🍔</div>
+            <h4 th:text="${prod.nombre}">Hamburguesa</h4>
+            <p th:text="${prod.calcularDisponibilidad() ? prod.composiciones.size() + ' comp.' : 'No disponible'}">12 unidades disponibles.</p>
+            <div class="menu-foot"><strong th:text="${#numbers.formatCurrency(prod.precio)}">$18.000</strong>
+                <button class="btn btn-dark" th:attr="data-producto-id=${prod.idProducto}, data-producto-precio=${prod.precio}, data-producto-nombre=${prod.nombre}" type="button">Agregar</button>
+            </div>
+        </article>
+    </div>
+</section>
+<aside class="card cart"><div class="eyebrow">Pedido actual</div><h3>Resumen de venta</h3>
+    <div th:if="${clienteSeleccionado!=null}" class="customer-summary" style="margin-bottom:10px">
+        <div><strong th:text="${clienteSeleccionado.nombre + ' ' + clienteSeleccionado.apellido}">Nombre Cliente</strong></div>
+        <div class="muted" th:text="${clienteSeleccionado.documento}">Documento</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+        <button id="seleccionar-adiciones" class="btn btn-light" style="flex:1">Seleccionar adiciones</button>
+        <button id="vaciar-carrito" class="btn btn-ghost" style="flex:1">Vaciar</button>
+    </div>
+    <div id="cart-items"></div>
+    <div class="total-box"><div class="total-row"><span>Subtotal</span><strong id="subtotal">$0</strong></div><div class="total-row final"><span>Total</span><strong id="total">$0</strong></div></div>
+    <button id="confirmar-venta" class="btn btn-primary" style="width:100%;margin-top:13px" disabled>Confirmar venta</button>
+
+    <!-- Adiciones modal -->
+    <div id="adiciones-modal" style="display:none;position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.5);align-items:center;justify-content:center">
+      <div style="background:#fff;padding:16px;border-radius:6px;max-width:420px;margin:auto">
+        <h4>Seleccionar adiciones</h4>
+        <div id="adiciones-list" style="display:flex;flex-direction:column;gap:6px;margin:8px 0">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+          <button id="cerrar-adiciones" class="btn btn-light">Cancelar</button>
+          <button id="confirmar-adiciones" class="btn btn-primary">Agregar seleccionadas</button>
+        </div>
+      </div>
+    </div>
+</aside></div>
+
+<!-- Hidden data -->
+<input type="hidden" id="vendedorId" th:value="${usuario!=null?usuario.idUsuario:''}" />
+<input type="hidden" id="clienteId" th:value="${clienteSeleccionado!=null?clienteSeleccionado.idCliente:''}" />
+
+<script th:src="@{/js/app.js}" src="/js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  let pedidoId = null;
+  const vendedorId = document.getElementById('vendedorId').value;
+  const clienteId = document.getElementById('clienteId').value;
+  const cartItems = document.getElementById('cart-items');
+  const confirmarBtn = document.getElementById('confirmar-venta');
+
+  async function crearPedidoIfNeeded(){
+    if (pedidoId) return pedidoId;
+    const resp = await fetch('/api/vendedor/pedidos', {
+      method: 'POST',
+      headers: {'Content-Type':'application/x-www-form-urlencoded'},
+      body: new URLSearchParams({clienteId: clienteId || '', vendedorId: vendedorId || ''})
+    });
+    if (!resp.ok) throw new Error('No se pudo crear el pedido');
+    const data = await resp.json();
+    pedidoId = data.id;
+    confirmarBtn.disabled = false;
+    return pedidoId;
+  }
+
+  // Cart model
+  const cart = [];
+
+  function formatCurrency(num) { return new Intl.NumberFormat('es-CO', {style:'currency', currency:'COP'}).format(num); }
+
+  function renderCart(){
+    cartItems.innerHTML = '';
+    let subtotal = 0;
+    cart.forEach((item, idx) => {
+      const div = document.createElement('div'); div.className='cart-item';
+      const name = item.isAdicion ? (item.nombre + ' (adición)') : (item.nombre + (item.cantidad>1?(' × '+item.cantidad):''));
+      const left = document.createElement('div'); left.innerHTML = '<div><strong>'+name+'</strong>'+(item.isAdicion?'<small>Adición</small>':'')+'</div>';
+      const right = document.createElement('strong'); right.textContent = formatCurrency(item.precioUnitario * item.cantidad);
+      // remove button
+      const removeBtn = document.createElement('button'); removeBtn.className='remove-item'; removeBtn.textContent='×'; removeBtn.style.marginLeft='8px'; removeBtn.title='Quitar';
+      removeBtn.addEventListener('click', async function(){
+        if (!confirm('Quitar este ítem del pedido?')) return;
+        if (item.detalleId && pedidoId) {
+          const resp = await fetch('/api/vendedor/pedidos/' + pedidoId + '/detalles/' + item.detalleId, {method:'DELETE'});
+          if (!resp.ok) { alert('No se pudo eliminar el detalle en servidor'); return; }
+        }
+        // remove from cart
+        cart.splice(idx,1);
+        renderCart();
+      });
+      div.appendChild(left); div.appendChild(right); div.appendChild(removeBtn);
+      cartItems.appendChild(div);
+      subtotal += item.precioUnitario * item.cantidad;
+    });
+    document.getElementById('subtotal').textContent = formatCurrency(subtotal);
+    document.getElementById('total').textContent = formatCurrency(subtotal);
+  }
+
+  async function addToCart(productoId, nombre, cantidad, precioUnitario, isAdicion){
+    // require at least a documento entered in the search box
+    const documentoInput = document.querySelector('input[name="documento"]');
+    const documentoVal = documentoInput ? documentoInput.value.trim() : '';
+    if (!documentoVal) { alert('Ingrese documento del cliente antes de agregar productos'); return; }
+
+    // merge if same producto and not adición
+    let itemRef;
+    if (!isAdicion) {
+      const existing = cart.find(c=>c.productoId==productoId && !c.isAdicion);
+      if (existing) { existing.cantidad += cantidad; itemRef = existing; }
+      else { itemRef = {productoId, nombre, cantidad, precioUnitario, isAdicion}; cart.push(itemRef); }
+    } else {
+      itemRef = {productoId, nombre, cantidad, precioUnitario, isAdicion}; cart.push(itemRef);
+    }
+    renderCart();
+
+    // persist detail to server
+    try{
+      await crearPedidoIfNeeded();
+      const body = {productoId: parseInt(productoId), cantidad: cantidad};
+      if (isAdicion) body.precioUnitario = precioUnitario; // pass override
+      const resp = await fetch('/api/vendedor/pedidos/' + pedidoId + '/detalles', {
+        method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+      });
+      if (!resp.ok) { alert('No se pudo agregar el producto al pedido en servidor'); }
+      else {
+        try {
+          const data = await resp.json();
+          if (data && data.id) itemRef.detalleId = data.id;
+        } catch(e) { /* ignore parse errors */ }
+      }
+    }catch(e){ console.error(e); alert('Error al guardar detalle: '+e.message); }
+  }
+
+  document.querySelectorAll('button[data-producto-id]').forEach(btn => {
+    btn.addEventListener('click', async function(){
+      const prodId = this.getAttribute('data-producto-id');
+      const prodName = this.getAttribute('data-producto-nombre') || ('Producto '+prodId);
+      const precio = parseFloat(this.getAttribute('data-producto-precio')) || 0;
+      const cantidad = 1; // default
+      try{
+        await addToCart(prodId, prodName, cantidad, precio, false);
+      }catch(e){ console.error(e); alert('Error: '+e.message); }
+    });
+  });
+
+  // Adiciones: only codes and default price; names will be resolved from MateriaPrima
+  const ADICIONES = [111,112,103,102,107,108];
+  const DEFAULT_AD_PRICE = 1000;
+
+  const modal = document.getElementById('adiciones-modal');
+  const adicionesList = document.getElementById('adiciones-list');
+  const btnAbrir = document.getElementById('seleccionar-adiciones');
+  const btnCerrar = document.getElementById('cerrar-adiciones');
+  const btnConfirmarAd = document.getElementById('confirmar-adiciones');
+  const btnVaciar = document.getElementById('vaciar-carrito');
+
+  async function openModal(){
+    // require documento entered before opening adiciones
+    const documentoInput = document.querySelector('input[name="documento"]');
+    const documentoVal = documentoInput ? documentoInput.value.trim() : '';
+    if (!documentoVal) { alert('Ingrese documento del cliente antes de seleccionar adiciones'); return; }
+    adicionesList.innerHTML = '';
+    // render placeholders and fetch names asynchronously
+    ADICIONES.forEach(code => {
+      const id = 'ad_'+code;
+      const row = document.createElement('label'); row.style.display='flex'; row.style.alignItems='center'; row.style.gap='8px';
+      row.innerHTML = `<input type="checkbox" id="${id}" data-codigo="${code}" /> <span id="label_${id}">Adición ${code} (${code}) - ${formatCurrency(DEFAULT_AD_PRICE)}</span>`;
+      adicionesList.appendChild(row);
+      // fetch materia prima name
+      (async function(code, labelId){
+        try{
+          const resp = await fetch('/api/inventario/materias/codigo/' + code);
+          if (!resp.ok) return;
+          const md = await resp.json();
+          const el = document.getElementById(labelId);
+          if (el) el.textContent = `Adición - ${md.nombre} (${code}) - ${formatCurrency(DEFAULT_AD_PRICE)}`;
+        }catch(e){ /* ignore */ }
+      })(code, 'label_'+id);
+    });
+    modal.style.display = 'flex';
+  }
+
+  function closeModal(){ modal.style.display='none'; }
+
+  btnAbrir.addEventListener('click', openModal);
+  btnCerrar.addEventListener('click', closeModal);
+
+  btnConfirmarAd.addEventListener('click', async function(){
+    const checks = Array.from(adicionesList.querySelectorAll('input[type=checkbox]:checked'));
+    if (checks.length===0) { closeModal(); return; }
+    for (const ch of checks){
+      const codigo = ch.getAttribute('data-codigo');
+      // resolve materia name
+      let nombreMateria = 'Código ' + codigo;
+      try{
+        const mresp = await fetch('/api/inventario/materias/codigo/' + codigo);
+        if (mresp.ok) { const md = await mresp.json(); nombreMateria = md.nombre; }
+      }catch(e){ }
+      // ensure there's a Producto representing this adicion (create or get)
+      try{
+        const createResp = await fetch('/api/inventario/adiciones/obtener-o-crear?codigoMateria=' + codigo + '&precio=' + DEFAULT_AD_PRICE, {method:'POST'});
+        if (!createResp.ok) { alert('No se pudo preparar la adición ' + codigo); continue; }
+        const created = await createResp.json();
+        const productId = created.id;
+        await addToCart(productId, 'Adición - ' + nombreMateria, 1, DEFAULT_AD_PRICE, true);
+      }catch(e){ console.error(e); alert('Error al agregar adición: '+e.message); }
+    }
+    closeModal();
+  });
+
+  btnVaciar.addEventListener('click', function(){
+    if (!confirm('Vaciar carrito?')) return;
+    cart.length = 0; renderCart();
+  });
+
+  confirmarBtn.addEventListener('click', async function(){
+    if (!pedidoId) return;
+    const resp = await fetch('/api/vendedor/pedidos/' + pedidoId + '/confirmar', {method:'POST'});
+    if (!resp.ok) { alert('No se pudo confirmar la venta'); return; }
+    alert('Venta confirmada');
+    window.location.reload();
+  });
+
+  confirmarBtn.addEventListener('click', async function(){
+    if (!pedidoId) return;
+    const resp = await fetch('/api/vendedor/pedidos/' + pedidoId + '/confirmar', {method:'POST'});
+    if (!resp.ok) { alert('No se pudo confirmar la venta'); return; }
+    alert('Venta confirmada');
+    window.location.reload();
+  });
+});
+</script>
+</body></html>
