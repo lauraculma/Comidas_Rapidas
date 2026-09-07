@@ -13,12 +13,20 @@ import com.comidarapida.service.UsuarioService;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
@@ -30,6 +38,9 @@ public class AdminController {
     private final ProductoService productoService;
     private final ProductoRepository productoRepository;
     private final Logger log = LoggerFactory.getLogger(AdminController.class);
+
+    @Value("${upload.dir:src/main/resources/static/img}")
+    private String uploadDir;
 
     public AdminController(UsuarioRepository usuarioRepository, UsuarioService usuarioService, ProductoService productoService, ProductoRepository productoRepository) {
         this.usuarioRepository = usuarioRepository;
@@ -197,7 +208,9 @@ public class AdminController {
     }
 
     @PostMapping("/productos/guardar")
-    public String guardarProducto(@ModelAttribute ProductoComidaRapida producto, RedirectAttributes ra) {
+    public String guardarProducto(@ModelAttribute ProductoComidaRapida producto,
+                                  @RequestParam(value = "imagenFile", required = false) MultipartFile imagenFile,
+                                  RedirectAttributes ra) {
         try {
             if (producto.getIdProducto() != null) {
                 var opt = productoService.consultarProducto(producto.getIdProducto());
@@ -207,12 +220,24 @@ public class AdminController {
                     p.setNombre(producto.getNombre());
                     p.setPrecio(producto.getPrecio());
                     p.setActivo(producto.isActivo());
+                    if (imagenFile != null && !imagenFile.isEmpty()) {
+                        String nombreArchivo = guardarImagen(imagenFile);
+                        if (nombreArchivo != null) {
+                            p.setImagen(nombreArchivo);
+                        }
+                    }
                     productoService.actualizarProducto(p);
                     ra.addFlashAttribute("success", "Producto actualizado");
                 } else {
                     ra.addFlashAttribute("error", "Producto no encontrado");
                 }
             } else {
+                if (imagenFile != null && !imagenFile.isEmpty()) {
+                    String nombreArchivo = guardarImagen(imagenFile);
+                    if (nombreArchivo != null) {
+                        producto.setImagen(nombreArchivo);
+                    }
+                }
                 productoService.registrarProducto(producto);
                 ra.addFlashAttribute("success", "Producto registrado");
             }
@@ -221,6 +246,27 @@ public class AdminController {
             ra.addFlashAttribute("error", "Error al guardar producto");
         }
         return "redirect:/admin/productos";
+    }
+
+    private String guardarImagen(MultipartFile file) {
+        try {
+            File dir = new File(uploadDir);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            String original = file.getOriginalFilename();
+            String extension = "";
+            if (original != null && original.contains(".")) {
+                extension = original.substring(original.lastIndexOf('.'));
+            }
+            String nombreArchivo = UUID.randomUUID().toString().replace("-", "") + extension;
+            Path path = Paths.get(uploadDir).resolve(nombreArchivo).toAbsolutePath();
+            Files.copy(file.getInputStream(), path);
+            return nombreArchivo;
+        } catch (IOException ex) {
+            log.warn("Error guardando imagen", ex);
+            return null;
+        }
     }
 
 }

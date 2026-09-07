@@ -15,6 +15,7 @@ public class ProductoComidaRapida {
     private String nombre;
     private double precio;
     private boolean activo = true;
+    private String imagen;
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
     private List<ComposicionProducto> composiciones = new ArrayList<>();
@@ -34,6 +35,9 @@ public class ProductoComidaRapida {
 
     public boolean isActivo() { return activo; }
     public void setActivo(boolean activo) { this.activo = activo; }
+
+    public String getImagen() { return imagen; }
+    public void setImagen(String imagen) { this.imagen = imagen; }
 
     public List<ComposicionProducto> getComposiciones() { return composiciones; }
     public void addComposicion(ComposicionProducto c) { this.composiciones.add(c); }

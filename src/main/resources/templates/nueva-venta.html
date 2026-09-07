@@ -8,7 +8,8 @@
     <a class="btn btn-light" th:href="@{/vendedor/clientes/nuevo}">Nuevo</a></div></div></article>
     <div class="catalog-grid">
         <article class="card menu-card" th:each="prod : ${productos}" th:if="${prod.codigo == null or !prod.codigo.matches('AD-(111|112|103|102|107|108)')}">
-            <div class="menu-visual">🍔</div>
+            <img th:if="${prod.imagen != null and !#strings.isEmpty(prod.imagen)}" class="menu-visual menu-img" th:src="@{${'/img/' + prod.imagen}}" alt="">
+            <div th:unless="${prod.imagen != null and !#strings.isEmpty(prod.imagen)}" class="menu-visual">🍔</div>
             <h4 th:text="${prod.nombre}">Hamburguesa</h4>
             <p th:text="${prod.calcularDisponibilidad() ? prod.composiciones.size() + ' comp.' : 'No disponible'}">12 unidades disponibles.</p>
             <div class="menu-foot"><strong th:text="${#numbers.formatCurrency(prod.precio)}">$18.000</strong>

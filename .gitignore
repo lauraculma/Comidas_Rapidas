@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Imágenes subidas de productos (se conserva logo.svg) ###
+src/main/resources/static/img/*
+!src/main/resources/static/img/logo.svg
