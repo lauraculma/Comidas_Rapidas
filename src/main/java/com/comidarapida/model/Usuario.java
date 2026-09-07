@@ -11,7 +11,7 @@ public abstract class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUsuario;
 
-    private String contraseña;
+    private String contrasena;
     private String nombre;
     private String apellido;
     private String documento;
@@ -23,8 +23,8 @@ public abstract class Usuario {
     public Long getIdUsuario() { return idUsuario; }
     public void setIdUsuario(Long idUsuario) { this.idUsuario = idUsuario; }
 
-    public String getContraseña() { return contraseña; }
-    public void setContraseña(String contraseña) { this.contraseña = contraseña; }
+    public String getContrasena() { return contrasena; }
+    public void setContrasena(String contrasena) { this.contrasena = contrasena; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
@@ -45,9 +45,9 @@ public abstract class Usuario {
     protected void setActivo(boolean activo) { this.activo = activo; }
 
     // Comportamientos del dominio
-    public boolean validarCredenciales(String correo, String contraseña) {
-        if (correo == null || contraseña == null) return false;
-        return correo.equals(this.correoElectronico) && contraseña.equals(this.contraseña) && this.activo;
+    public boolean validarCredenciales(String correo, String contrasena) {
+        if (correo == null || contrasena == null) return false;
+        return correo.equals(this.correoElectronico) && contrasena.equals(this.contrasena) && this.activo;
     }
 
     public void actualizarDatosContacto(String correo, String telefono) {

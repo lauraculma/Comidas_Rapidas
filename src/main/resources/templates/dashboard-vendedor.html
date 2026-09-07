@@ -6,7 +6,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css"></head>
 <body><div class="shell">
-<div th:replace="~{fragments/sidebar :: sidebar('dashboard','VENDEDOR')}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar('dashboard', ${sessionRole})}"></div>
 <main class="main"><div th:replace="~{fragments/topbar :: topbar('Ventas','Panel vendedor')}"></div>
 <section class="content">
 <div class="page-head"><div><h2>Turno de ventas</h2><p>Clientes, disponibilidad y pedidos en una pantalla enfocada en atender rápido.</p></div><a class="btn btn-primary" th:href="@{/vendedor/venta/nueva}">Nueva venta</a></div>

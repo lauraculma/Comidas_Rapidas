@@ -6,7 +6,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css"></head>
 <body><div class="shell">
-<div th:replace="~{fragments/sidebar :: sidebar('dashboard','ADMIN')}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar('dashboard', ${sessionRole})}"></div>
 <main class="main"><div th:replace="~{fragments/topbar :: topbar('Administración','Panel administrador')}"></div>
 <section class="content">
 <div class="page-head"><div><h2>Panel administrativo</h2><p>Una vista clara del catálogo, los usuarios y el estado general de la operación.</p></div><a class="btn btn-primary" th:href="@{/admin/productos/nuevo}">Nuevo producto</a></div>

@@ -6,7 +6,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css"></head>
 <body><div class="shell">
-<div th:replace="~{fragments/sidebar :: sidebar('dashboard','INVENTARIO')}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar('dashboard', ${sessionRole})}"></div>
 <main class="main"><div th:replace="~{fragments/topbar :: topbar('Inventario','Panel inventario')}"></div>
 <section class="content">
 <div class="page-head"><div><h2>Inventario al día</h2><p>Revisa existencias y registra entradas o salidas sin perder el historial.</p></div><a class="btn btn-primary" th:href="@{/inventario/movimientos/nuevo}">Registrar movimiento</a></div>

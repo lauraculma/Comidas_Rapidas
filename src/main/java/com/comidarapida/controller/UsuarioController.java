@@ -65,11 +65,17 @@ public class UsuarioController {
                 return ResponseEntity.badRequest().body("Tipo de usuario inválido: " + dto.tipo);
         }
 
-        // Campos base
+        if (dto.contrasena == null || dto.contrasena.isBlank()) {
+            return ResponseEntity.badRequest().body("Contrasena es requerida");
+        }
         u.setNombre(dto.nombre);
         u.setApellido(dto.apellido);
-        u.setCorreoElectronico(dto.correoElectronico);
-        u.setContraseña(dto.contrasena);
+        if (dto.correoElectronico != null) {
+            u.setCorreoElectronico(dto.correoElectronico.trim().toLowerCase());
+        } else {
+            u.setCorreoElectronico(null);
+        }
+        u.setContrasena(dto.contrasena.trim());
         u.setDocumento(dto.documento);
         u.setTelefono(dto.telefono);
 

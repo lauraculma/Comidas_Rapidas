@@ -15,9 +15,12 @@ public class UsuarioService {
         this.usuarioRepository = usuarioRepository;
     }
 
-    public Optional<Usuario> autenticar(String correo, String contraseña) {
-        Optional<Usuario> u = usuarioRepository.findByCorreoElectronico(correo);
-        if (u.isPresent() && u.get().validarCredenciales(correo, contraseña)) {
+    public Optional<Usuario> autenticar(String correo, String contrasena) {
+        if (correo == null || correo.isBlank() || contrasena == null) return Optional.empty();
+        String correoNorm = correo.trim().toLowerCase();
+        String passNorm = contrasena.trim();
+        Optional<Usuario> u = usuarioRepository.findByCorreoElectronico(correoNorm);
+        if (u.isPresent() && u.get().validarCredenciales(correoNorm, passNorm)) {
             return u;
         }
         return Optional.empty();
