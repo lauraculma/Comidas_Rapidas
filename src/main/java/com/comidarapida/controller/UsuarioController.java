@@ -44,10 +44,10 @@ public class UsuarioController {
 
     @PostMapping
     public ResponseEntity<?> registrar(@RequestBody UsuarioRegistroDto dto) {
-        if (dto == null || dto.tipo == null || dto.tipo.isBlank()) {
+        if (dto == null || dto.getTipo() == null || dto.getTipo().isBlank()) {
             return ResponseEntity.badRequest().body("Tipo de usuario es requerido");
         }
-        String tipo = dto.tipo.trim().toLowerCase();
+        String tipo = dto.getTipo().trim().toLowerCase();
         Usuario u;
         switch (tipo) {
             case "vendedor":
@@ -62,22 +62,22 @@ public class UsuarioController {
                 u = new EncargadoInventario();
                 break;
             default:
-                return ResponseEntity.badRequest().body("Tipo de usuario inválido: " + dto.tipo);
+                return ResponseEntity.badRequest().body("Tipo de usuario inválido: " + dto.getTipo());
         }
 
-        if (dto.contrasena == null || dto.contrasena.isBlank()) {
+        if (dto.getContrasena() == null || dto.getContrasena().isBlank()) {
             return ResponseEntity.badRequest().body("Contrasena es requerida");
         }
-        u.setNombre(dto.nombre);
-        u.setApellido(dto.apellido);
-        if (dto.correoElectronico != null) {
-            u.setCorreoElectronico(dto.correoElectronico.trim().toLowerCase());
+        u.setNombre(dto.getNombre());
+        u.setApellido(dto.getApellido());
+        if (dto.getCorreoElectronico() != null) {
+            u.setCorreoElectronico(dto.getCorreoElectronico().trim().toLowerCase());
         } else {
             u.setCorreoElectronico(null);
         }
-        u.setContrasena(dto.contrasena.trim());
-        u.setDocumento(dto.documento);
-        u.setTelefono(dto.telefono);
+        u.setContrasena(dto.getContrasena().trim());
+        u.setDocumento(dto.getDocumento());
+        u.setTelefono(dto.getTelefono());
 
         Usuario creado = usuarioService.registrar(u);
         return ResponseEntity.status(201).body(Map.of("id", creado.getIdUsuario()));

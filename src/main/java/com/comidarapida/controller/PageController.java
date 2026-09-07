@@ -70,17 +70,7 @@ public class PageController {
         return "dashboard-inventario";
     }
 
-    @GetMapping("/admin/usuarios")
-    public String adminUsuarios(Model model, HttpSession session) {
-        ensureSessionAttributes(model, session);
-        return "usuarios";
-    }
 
-    @GetMapping("/admin/productos")
-    public String adminProductos(Model model, HttpSession session) {
-        ensureSessionAttributes(model, session);
-        return "productos";
-    }
 
     @GetMapping("/vendedor/productos")
     public String vendedorProductos(Model model, HttpSession session) {

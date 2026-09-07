@@ -46,4 +46,9 @@ public class ProductoComidaRapida {
         }
         return true;
     }
+
+    // Backwards-compatible alias for templates that call calcularDisponibilidad()
+    public boolean calcularDisponibilidad() {
+        return calculaDisponibilidad();
+    }
 }
