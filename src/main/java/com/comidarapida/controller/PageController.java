@@ -84,11 +84,4 @@ public class PageController {
         return "nueva-venta";
     }
 
-    @GetMapping("/inventario")
-    public String inventario(Model model, HttpSession session) {
-        ensureSessionAttributes(model, session);
-        return "inventario";
-    }
-
-
 }

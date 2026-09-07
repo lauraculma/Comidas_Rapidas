@@ -6,6 +6,7 @@ import com.comidarapida.model.EncargadoInventario;
 import com.comidarapida.repository.MateriaPrimaRepository;
 import com.comidarapida.repository.MovimientoInventarioRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ public class InventarioService {
         this.movimientoRepo = movimientoRepo;
     }
 
+    @Transactional
     public MovimientoInventario registrarEntrada(MateriaPrima materia, int cantidad, EncargadoInventario encargado) {
         MovimientoInventario m = new MovimientoInventario();
         m.setTipo(MovimientoInventario.Tipo.ENTRADA);
@@ -32,6 +34,7 @@ public class InventarioService {
         return movimientoRepo.save(m);
     }
 
+    @Transactional
     public MovimientoInventario registrarSalida(MateriaPrima materia, int cantidad, EncargadoInventario encargado) {
         if (!materia.hayStock(cantidad)) throw new IllegalArgumentException("Stock insuficiente");
         MovimientoInventario m = new MovimientoInventario();

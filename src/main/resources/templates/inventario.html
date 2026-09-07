@@ -1,5 +1,13 @@
 <!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Inventario · Comida Rápida</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"><link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css"></head><body><div class="shell"><div th:replace="~{fragments/sidebar :: sidebar('inventario', ${sessionRole})}"></div><main class="main"><div th:replace="~{fragments/topbar :: topbar('Inventario','Inventario')}"></div><section class="content">
 <div class="page-head"><div><h2>Materias primas</h2><p>Consulta existencias y detecta qué ingredientes requieren abastecimiento.</p></div><a class="btn btn-primary" th:href="@{/inventario/nueva-materia}">Registrar materia prima</a></div>
 <div class="toolbar"><input class="search" data-filter-table="#tablaInventario" placeholder="Buscar código o materia prima"></div>
-<article class="card"><div class="panel-body table-wrap" style="padding-top:10px"><table id="tablaInventario"><thead><tr><th>Materia prima</th><th>Código</th><th>Existencia</th><th>Estado</th><th></th></tr></thead><tbody><tr><td><strong>Carne de res</strong></td><td>101</td><td>8 kg</td><td><span class="badge green">ACTIVO</span></td><td><button class="ghost-btn">Movimiento</button></td></tr><tr><td><strong>Queso tajado</strong></td><td>102</td><td>18 und</td><td><span class="badge amber">STOCK BAJO</span></td><td><button class="ghost-btn">Movimiento</button></td></tr></tbody></table></div></article>
+<article class="card"><div class="panel-body table-wrap" style="padding-top:10px"><table id="tablaInventario"><thead><tr><th>Materia prima</th><th>Código</th><th>Existencia</th><th>Estado</th><th></th></tr></thead><tbody>
+<tr th:each="mat : ${materias}">
+    <td><strong th:text="${mat.nombre}">Nombre</strong></td>
+    <td th:text="${mat.codigo}">101</td>
+    <td th:text="${mat.stockActual + ' ' + (mat.unidadMedida != null ? mat.unidadMedida : '')}">8 kg</td>
+    <td><span th:classappend="${mat.estado != null and #strings.toUpperCase(mat.estado)=='ACTIVO' ? 'badge green' : (mat.estado!=null and #strings.toUpperCase(mat.estado).contains('BAJO') ? 'badge amber' : 'badge neutral') }" th:text="${mat.estado}">ACTIVO</span></td>
+    <td><a class="ghost-btn" th:href="@{/inventario/movimientos/nuevo(materiaId=${mat.idMateriaPrima})}">Movimiento</a></td>
+</tr>
+</tbody></table></div></article>
 </section></main></div><script th:src="@{/js/app.js}" src="/js/app.js"></script></body></html>

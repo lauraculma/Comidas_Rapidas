@@ -19,9 +19,11 @@ public class MovimientoInventario {
     private int cantidad;
 
     @ManyToOne
+    @JoinColumn(name = "id_materia_prima", nullable = false)
     private MateriaPrima materiaPrima;
 
     @ManyToOne
+    @JoinColumn(name = "id_encargado", nullable = false)
     private EncargadoInventario encargado;
 
     // Getters y setters
